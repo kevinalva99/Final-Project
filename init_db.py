@@ -63,3 +63,29 @@ for order in data:
 for (phone, name) in customers.items():
     cursor.execute("INSERT INTO customers (name, phone) VALUES (?, ?);", (name, phone))
 
+items = {}
+
+for oder in data:
+    for item in order['items']:
+        name = item['name']
+        price = item['price']
+        items[name] = price
+for (name, price) in items.items():
+    cursor.execute("INSERT INTO items (name, price) VALUES (?, ?);", (name, price))
+
+for order in data:
+    phone = order['phone']
+    timestamp = order['timestamp']
+    notes = order['notes']
+    res = cursor.execute("SELECT id FROM customers WHERE phone=?;", (phone,))
+    cust_id = res.fetchone()[0]
+    cursor.execute("INSERT INTO orders (timestamp, cust_id, notes) VALUES (?, ?, ?);", (timestamp, cust_id, notes))
+    order_id = cursor.lastrowid
+    for item in order['items']:
+        res = cursor.execute("SELECT id FROM items WHERE name=?;", (name,))
+        item_id = res.fetchone()[0]
+        cursor.execute("INSERT INTO item_list(order_id,item_id) VALUES(?, ?);", (order_id, item_id))
+    
+    
+
+connection.commit
