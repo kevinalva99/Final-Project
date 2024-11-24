@@ -1,4 +1,5 @@
 import sqlite3
+import json
 
 connection = sqlite3.connect("dosa.db")
 cursor = connection.cursor()
@@ -49,10 +50,16 @@ def count_customers():
     rows = cursor.execute("SELECT COUNT(*) FROM customers;").fetchone()
     return rows[0]
 
-# add some customers (repeats won't happen if you run this more than once we never save our DB)
-add_customer("Ryan", "6095550124")
-add_customer("Bill", "6095551024")
-add_customer("Divesh", "6095551204")
+with open('example_orders.json', 'r') as filename:
+    data = json.load(filename)
 
-print_customers()
-print(count_customers())
+customers = {}
+
+for order in data:
+    name = order['name']
+    phone = order['phone']
+    customers[phone] = name
+
+for (phone, name) in customers.items():
+    cursor.execute("INSERT INTO customers (name, phone) VALUES (?, ?);", (name, phone))
+
