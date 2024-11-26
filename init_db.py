@@ -88,4 +88,4 @@ for order in data:
     
     
 
-connection.commit
+connection.commit()
