@@ -65,7 +65,7 @@ for (phone, name) in customers.items():
 
 items = {}
 
-for oder in data:
+for order in data:
     for item in order['items']:
         name = item['name']
         price = item['price']
@@ -82,7 +82,8 @@ for order in data:
     cursor.execute("INSERT INTO orders (timestamp, cust_id, notes) VALUES (?, ?, ?);", (timestamp, cust_id, notes))
     order_id = cursor.lastrowid
     for item in order['items']:
-        res = cursor.execute("SELECT id FROM items WHERE name=?;", (name,))
+        item_name = item['name']
+        res = cursor.execute("SELECT id FROM items WHERE name=?;", (item_name,))
         item_id = res.fetchone()[0]
         cursor.execute("INSERT INTO item_list(order_id,item_id) VALUES(?, ?);", (order_id, item_id))
     
