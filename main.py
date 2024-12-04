@@ -92,3 +92,38 @@ def creat_customer(item: Item):
     "name": item.name,
     "price": item.price,
   }
+
+@app.get("/orders/{order_id}")
+def read_order(order_id: int):
+  con, cur = db_setup()
+  res = cur.execute("SELECT * FROM orders WHERE id=?;", (order_id,))
+  row = res.fetchone()
+  return{
+    "id": row[0],
+    "timestamp": row[1],
+    "cust_id": row[2],
+    "notes": row[3]
+  }
+
+@app.delete("/orders/{order_id}")
+def del_orders(order_id: int):
+  cur = db_setup()
+  res = cur.execute("DELETE FROM orders WHERE id=?;", (order_id,))
+  return("rows_affected", cur.rowcount)
+
+@app.put("/orders/")
+def update_orders(order: Order):
+  cur, conn = db_setup
+  res = cur.execute("UPDATE orders SET name=?, price=?, WHERE id=?;", (item.name, item.phone, item.item_id))
+  return("rows_affected",)
+
+@app.post("/orders/")
+def creat_order(order: Order):
+  cur = db_setup()
+  res = cur.execute("INSERT INTO orders (timestamp, cust_id, notes) VALUES(?, ?, ?);", (order.timestamp, order.cust_id, order.notes))
+  order_id = res.lastrowid
+  return{
+    "id": order_id,
+    "name": order.name,
+    "price": order.price,
+  }
