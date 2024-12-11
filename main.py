@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 import sqlite3
 from pydantic import BaseModel
+from datetime import datetime
 
 class Customer(BaseModel): 
     customer_id: int 
@@ -21,7 +22,7 @@ class Order(BaseModel):
 app = FastAPI()
 
 def db_setup():
-    con = sqlite3.connect("dosa.db")
+    con = sqlite3.connect("db.sqlite")
     con.row_factory = sqlite3.Row  # Enable dict-like access to rows
     cur = con.cursor()
     return con, cur
@@ -107,6 +108,23 @@ def del_order(order_id: int):
     cur.execute("DELETE FROM orders WHERE id=?;", (order_id,))
     con.commit()
     return {"rows_affected": cur.rowcount}
+
+@app.put("/orders/")
+def update_order(order: Order):
+    con, cur = db_setup()
+    timestamp = int(datetime.now().timestamp())
+    if order.cust_id == 0:
+        res = cur.execute("SELECT cust_id FROM orders WHERE id = ?;", (order.order_id,))
+        current_cust_id = res.fetchone()
+        cust_id = current_cust_id[0]
+    else:
+        cust_id = order.cust_id
+    cur.execute(
+        "UPDATE orders SET timestamp = ?, notes = ?, cust_id = ? WHERE id = ?;",
+        (timestamp, order.notes, cust_id, order.order_id)
+    )
+    con.commit()
+
 
 @app.post("/orders/")
 def create_order(order: Order):

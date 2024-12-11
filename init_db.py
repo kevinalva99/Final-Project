@@ -1,7 +1,7 @@
 import sqlite3
 import json
 
-connection = sqlite3.connect("dosa.db")
+connection = sqlite3.connect("db.sqlite")
 cursor = connection.cursor()
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS customers(
@@ -61,7 +61,7 @@ for order in data:
     customers[phone] = name
 
 for (phone, name) in customers.items():
-    cursor.execute("INSERT INTO customers (name, phone) VALUES (?, ?);", (name, phone))
+    cursor.execute("INSERT OR IGNORE INTO customers (name, phone) VALUES (?, ?);", (name, phone))
 
 items = {}
 
@@ -71,7 +71,7 @@ for order in data:
         price = item['price']
         items[name] = price
 for (name, price) in items.items():
-    cursor.execute("INSERT INTO items (name, price) VALUES (?, ?);", (name, price))
+    cursor.execute("INSERT OR IGNORE INTO items (name, price) VALUES (?, ?);", (name, price))
 
 for order in data:
     phone = order['phone']
