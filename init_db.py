@@ -34,22 +34,6 @@ CREATE TABLE IF NOT EXISTS item_list(
 );
 """)
 
-def add_customer(name, phone):
-    cursor.execute("INSERT INTO customers (name, phone) VALUES (?, ?);",
-                   (name, phone))
-
-def list_customers():
-    rows = cursor.execute("SELECT id, name, phone FROM customers;").fetchall()
-    return rows
-
-def print_customers():
-    for customer in list_customers():
-        print(f"ID: {customer[0]} Name: {customer[1]} Phone: {customer[2]}")
-    
-def count_customers():
-    rows = cursor.execute("SELECT COUNT(*) FROM customers;").fetchone()
-    return rows[0]
-
 with open('example_orders.json', 'r') as filename:
     data = json.load(filename)
 

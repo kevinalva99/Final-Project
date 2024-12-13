@@ -127,21 +127,21 @@ def update_order(order: Order):
 
 
 @app.post("/orders/")
-def create_order(order: Order):
+def create_order(order: Order,  phone: str):
     con, cur = db_setup()
 
-    cur.execute("SELECT id FROM customers WHERE id = ?;", (order.cust_id,))
-    existing_customer = cur.fetchone()
+    cur.execute("SELECT id FROM customers WHERE phone = ?;", (phone,))
+    customer = cur.fetchone()
 
-    if not existing_customer:
+    if customer:
+        cust_id = customer["id"]
+    else:
         cur.execute(
             "INSERT INTO customers (name, phone) VALUES (?, ?);",
-            ("New Customer", "000-000-0000")  
+            ("New Customer", phone)  
         )
         con.commit()
-        new_cust_id = cur.lastrowid
-    else:
-        new_cust_id = order.cust_id
+        cust_id = cur.lastrowid
 
     cur.execute("SELECT MAX(id) FROM orders;")
     last_order_id = cur.fetchone()[0] or 0
@@ -151,13 +151,14 @@ def create_order(order: Order):
 
     cur.execute(
         "INSERT INTO orders (id, timestamp, cust_id, notes) VALUES (?, ?, ?, ?);",
-        (new_order_id, timestamp, new_cust_id, order.notes)
+        (new_order_id, timestamp, cust_id, order.notes)
     )
     con.commit()
 
     return {
         "order_id": new_order_id,
         "timestamp": timestamp,
-        "cust_id": new_cust_id,
+        "cust_id": cust_id,
+        "phone": phone,
         "notes": order.notes
     }
