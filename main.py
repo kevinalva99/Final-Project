@@ -23,7 +23,7 @@ app = FastAPI()
 
 def db_setup():
     con = sqlite3.connect("db.sqlite")
-    con.row_factory = sqlite3.Row  # Enable dict-like access to rows
+    con.row_factory = sqlite3.Row 
     cur = con.cursor()
     return con, cur
 
